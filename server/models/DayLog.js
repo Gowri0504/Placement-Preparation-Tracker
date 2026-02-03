@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const DayLogSchema = new mongoose.Schema({
-  date: { type: String, required: true, unique: true }, // Format YYYY-MM-DD
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  date: { type: String, required: true }, // Format YYYY-MM-DD
   mood: { type: String, enum: ['happy', 'neutral', 'sad', 'stressed', 'excited'], default: 'neutral' },
   totalTime: { type: Number, default: 0 },
   notes: { type: String },
@@ -47,5 +48,7 @@ const DayLogSchema = new mongoose.Schema({
     }
   }
 }, { timestamps: true });
+
+DayLogSchema.index({ userId: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model('DayLog', DayLogSchema);

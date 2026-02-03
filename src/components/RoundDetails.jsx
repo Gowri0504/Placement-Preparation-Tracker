@@ -220,12 +220,12 @@ export default function RoundDetails({ date, roundId, roundConfig, onClose, onUp
                                 {topic.name}
                               </span>
                               <div className={clsx(
-                                "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300",
+                                "w-6 h-6 rounded-full border-[2.5px] flex items-center justify-center flex-shrink-0 transition-all duration-300",
                                 isChecked 
-                                  ? "bg-indigo-500 border-indigo-500 scale-110" 
-                                  : "border-slate-300 group-hover:border-indigo-300"
+                                  ? "bg-indigo-600 border-indigo-600 scale-110 shadow-lg shadow-indigo-200" 
+                                  : "border-slate-300 group-hover:border-indigo-400 bg-slate-50"
                               )}>
-                                {isChecked && <FaCheckCircle className="text-white text-[10px]" />}
+                                {isChecked && <FaCheckCircle className="text-white text-sm" />}
                               </div>
                             </div>
                             

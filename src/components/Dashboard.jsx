@@ -1,50 +1,78 @@
 import { useState, useEffect } from 'react';
-import { format, subDays, isToday } from 'date-fns';
+import { format, subDays, addDays, isToday, startOfYear, endOfYear, eachDayOfInterval } from 'date-fns';
 import axios from 'axios';
 import clsx from 'clsx';
 import RoundDetails from './RoundDetails';
-import { FaCheck, FaChartLine, FaCode, FaLaptopCode, FaUserTie } from 'react-icons/fa';
+import { FaCheck, FaChartLine, FaCode, FaLaptopCode, FaUserTie, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
+import { useAuth } from '../context/AuthContext';
 
 const ROUNDS = [
-  { id: 'round1', label: 'Aptitude', subLabel: 'Quant, Logical, Verbal', icon: FaChartLine, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', checkBg: 'bg-emerald-500' },
-  { id: 'round2', label: 'Coding', subLabel: 'DSA & Algorithms', icon: FaCode, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', checkBg: 'bg-blue-500' },
-  { id: 'round3', label: 'Technical', subLabel: 'CS Core Subjects', icon: FaLaptopCode, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', checkBg: 'bg-purple-500' },
-  { id: 'round4', label: 'HR Round', subLabel: 'Behavioral & Projects', icon: FaUserTie, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', checkBg: 'bg-orange-500' },
+  { id: 'round1', label: 'Aptitude', subLabel: 'Quant, Logical, Verbal', icon: FaChartLine, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', checkBg: 'bg-emerald-600' },
+  { id: 'round2', label: 'Coding', subLabel: 'DSA & Algorithms', icon: FaCode, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', checkBg: 'bg-blue-600' },
+  { id: 'round3', label: 'Technical', subLabel: 'CS Core Subjects', icon: FaLaptopCode, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200', checkBg: 'bg-purple-600' },
+  { id: 'round4', label: 'HR Round', subLabel: 'Behavioral & Projects', icon: FaUserTie, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', checkBg: 'bg-orange-600' },
 ];
 
 export default function Dashboard() {
   const [dates, setDates] = useState([]);
   const [logs, setLogs] = useState({});
+  const [allLogs, setAllLogs] = useState([]);
   const [selectedCell, setSelectedCell] = useState(null);
   const [topics, setTopics] = useState([]);
+  const [startDate, setStartDate] = useState(new Date()); // Start date for the 5-day view (actually end date looking back)
+  const { user } = useAuth();
 
+  // Load initial data
   useEffect(() => {
-    // Generate dates
-    const today = new Date();
+    fetchTopics();
+    fetchAllLogs();
+  }, []);
+
+  // Update visible dates when startDate changes
+  useEffect(() => {
     const days = [];
     for (let i = 4; i >= 0; i--) {
-      days.push(subDays(today, i));
+      days.push(subDays(startDate, i));
     }
     setDates(days);
+    fetchLogsForRange(days);
+  }, [startDate]);
 
-    // Fetch Logs
-    const fetchLogs = async () => {
-      const promises = days.map(date => 
+  const fetchTopics = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/topics');
+      setTopics(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchAllLogs = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/daylogs');
+      setAllLogs(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchLogsForRange = async (rangeDates) => {
+    try {
+      const promises = rangeDates.map(date => 
         axios.get(`http://localhost:5000/api/daylog/${format(date, 'yyyy-MM-dd')}`)
       );
       const results = await Promise.all(promises);
-      const newLogs = {};
+      const newLogs = { ...logs };
       results.forEach(res => {
         if (res.data) newLogs[res.data.date] = res.data;
       });
       setLogs(newLogs);
-    };
-
-    // Fetch Topics
-    axios.get('http://localhost:5000/api/topics').then(res => setTopics(res.data));
-
-    fetchLogs();
-  }, []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleCellClick = (dateStr, roundId) => {
     setSelectedCell({ date: dateStr, roundId });
@@ -52,11 +80,49 @@ export default function Dashboard() {
 
   const handleUpdate = (updatedLog) => {
     setLogs(prev => ({ ...prev, [updatedLog.date]: updatedLog }));
+    // Also update allLogs for heatmap
+    setAllLogs(prev => {
+      const index = prev.findIndex(l => l.date === updatedLog.date);
+      if (index >= 0) {
+        const newLogs = [...prev];
+        newLogs[index] = updatedLog;
+        return newLogs;
+      }
+      return [...prev, updatedLog];
+    });
   };
 
+  const shiftDate = (days) => {
+    setStartDate(prev => addDays(prev, days));
+  };
+
+  // Calculate heatmap data
+  const heatmapData = allLogs.map(log => {
+    let count = 0;
+    if (log.rounds) {
+      Object.values(log.rounds).forEach(r => {
+        if (r.completed) count++;
+      });
+    }
+    return { date: log.date, count };
+  });
+
   return (
-    <div>
-      <div className="glass-panel rounded-[2rem] overflow-hidden animate-scale-in">
+    <div className="space-y-8">
+      {/* Navigation & Grid */}
+      <div className="glass-panel rounded-[2rem] overflow-hidden animate-scale-in relative">
+        <div className="absolute top-4 right-4 flex gap-2 z-30">
+          <button onClick={() => shiftDate(-5)} className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+            <FaChevronLeft className="text-slate-600" />
+          </button>
+          <button onClick={() => setStartDate(new Date())} className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider hover:bg-indigo-100 transition-colors">
+            Today
+          </button>
+          <button onClick={() => shiftDate(5)} className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+            <FaChevronRight className="text-slate-600" />
+          </button>
+        </div>
+
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -118,13 +184,13 @@ export default function Dashboard() {
                         <button className={clsx(
                           "w-16 h-12 rounded-xl flex items-center justify-center transition-all duration-500 mx-auto relative overflow-hidden group/btn",
                           isCompleted 
-                            ? `${round.checkBg} text-white shadow-lg shadow-${round.checkBg}/30` 
-                            : "bg-slate-50 border border-slate-100 text-slate-300 hover:border-slate-300 hover:text-slate-400"
+                            ? `${round.checkBg} text-white shadow-lg shadow-${round.checkBg}/30 border-2 border-white` 
+                            : "bg-slate-50 border-2 border-slate-200 text-slate-300 hover:border-slate-300 hover:text-slate-400"
                         )}>
                           {isCompleted && (
                              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                           )}
-                          {isCompleted ? <FaCheck className="text-lg transform scale-100 transition-transform duration-300" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/btn:bg-slate-300 transition-colors"></div>}
+                          {isCompleted ? <FaCheck className="text-lg transform scale-100 transition-transform duration-300" /> : <div className="w-2 h-2 rounded-full bg-slate-300 group-hover/btn:bg-slate-400 transition-colors"></div>}
                         </button>
                       </td>
                     );
@@ -133,6 +199,27 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Heatmap Section */}
+      <div className="glass-panel p-8 rounded-[2rem]">
+        <h3 className="text-xl font-serif font-bold text-slate-800 mb-6">Yearly Consistency</h3>
+        <div className="overflow-x-auto custom-scrollbar pb-4">
+          <div className="min-w-[800px]">
+            <CalendarHeatmap
+              startDate={subDays(new Date(), 365)}
+              endDate={new Date()}
+              values={heatmapData}
+              classForValue={(value) => {
+                if (!value || value.count === 0) {
+                  return 'color-empty';
+                }
+                return `color-scale-${Math.min(value.count, 4)}`;
+              }}
+              showWeekdayLabels={true}
+            />
+          </div>
         </div>
       </div>
 
