@@ -7,12 +7,16 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+const envAllowed = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175',
-  'https://placement-preparation-tracker-bay.vercel.app',
-  process.env.CLIENT_URL
+  process.env.FRONTEND_URL,
+  ...envAllowed,
 ].filter(Boolean);
 const corsOptions = {
   origin: (origin, callback) => {
