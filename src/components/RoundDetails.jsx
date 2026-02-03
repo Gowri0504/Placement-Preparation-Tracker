@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { FaTimes, FaSave, FaCheckCircle, FaRegCircle, FaFire, FaTrophy, FaLightbulb, FaLayerGroup } from 'react-icons/fa';
 import clsx from 'clsx';
 import confetti from 'canvas-confetti';
@@ -72,7 +72,7 @@ export default function RoundDetails({ date, roundId, roundConfig, onClose, onUp
     };
 
     try {
-      const res = await axios.post('http://localhost:5000/api/daylog', updatedLog);
+      const res = await api.post('/api/daylog', updatedLog);
       onUpdate(res.data);
       handleClose();
     } catch (err) {

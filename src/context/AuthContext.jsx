@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 
 const AuthContext = createContext();
 
@@ -13,17 +13,17 @@ export const AuthProvider = ({ children }) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (userInfo) {
       setUser(userInfo);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${userInfo.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${userInfo.token}`;
     }
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const { data } = await api.post('/api/auth/login', { email, password });
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       return data;
     } catch (error) {
       throw error.response?.data?.message || 'Login failed';
@@ -32,10 +32,10 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (username, email, password) => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/signup', { username, email, password });
+      const { data } = await api.post('/api/auth/signup', { username, email, password });
       setUser(data);
       localStorage.setItem('userInfo', JSON.stringify(data));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       return data;
     } catch (error) {
       throw error.response?.data?.message || 'Signup failed';
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('userInfo');
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
   };
 
   return (

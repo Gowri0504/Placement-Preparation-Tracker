@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import Dashboard from '../components/Dashboard';
 import MotivationCard from '../components/MotivationCard';
 import { useAuth } from '../context/AuthContext';
@@ -13,7 +13,7 @@ export default function Home() {
 
   const fetchMotivation = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/motivation');
+      const res = await api.get('/api/motivation');
       setMotivation(res.data.quote);
     } catch (err) {
       console.error(err);
@@ -23,7 +23,7 @@ export default function Home() {
   const fetchTodayProgress = async () => {
     try {
       const todayStr = new Date().toISOString().split('T')[0];
-      const res = await axios.get(`http://localhost:5000/api/daylog/${todayStr}`);
+      const res = await api.get(`/api/daylog/${todayStr}`);
       
       if (res.data && res.data.rounds) {
         let completedRounds = 0;

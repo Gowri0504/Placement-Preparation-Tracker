@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, subDays, addDays, isToday, startOfYear, endOfYear, eachDayOfInterval } from 'date-fns';
-import axios from 'axios';
+import api from '../api/axios';
 import clsx from 'clsx';
 import RoundDetails from './RoundDetails';
 import { FaCheck, FaChartLine, FaCode, FaLaptopCode, FaUserTie, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
   const fetchTopics = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/topics');
+      const res = await api.get('/api/topics');
       setTopics(res.data);
     } catch (err) {
       console.error(err);
@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   const fetchAllLogs = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/daylogs');
+      const res = await api.get('/api/daylogs');
       setAllLogs(res.data);
     } catch (err) {
       console.error(err);
@@ -61,7 +61,7 @@ export default function Dashboard() {
   const fetchLogsForRange = async (rangeDates) => {
     try {
       const promises = rangeDates.map(date => 
-        axios.get(`http://localhost:5000/api/daylog/${format(date, 'yyyy-MM-dd')}`)
+        api.get(`/api/daylog/${format(date, 'yyyy-MM-dd')}`)
       );
       const results = await Promise.all(promises);
       const newLogs = { ...logs };
