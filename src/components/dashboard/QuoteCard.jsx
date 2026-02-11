@@ -28,7 +28,7 @@ const QuoteCard = () => {
 
   return (
     <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20 overflow-hidden relative group">
-      <div className="absolute -top-4 -left-4 text-primary/10 text-8xl group-hover:scale-110 transition-transform duration-500">
+      <div className="absolute -top-2 -left-2 text-primary/10 text-5xl group-hover:scale-110 transition-transform duration-500">
         <FaQuoteLeft />
       </div>
       <AnimatePresence mode="wait">
