@@ -1,180 +1,147 @@
-# Placement Preparation Tracker - Elite Edition
-## Project Documentation
+# 🧩 Placement Preparation Tracker – Enterprise Edition
 
-### 1. Project Overview
-The Placement Preparation Tracker is a sophisticated, multi-user web application designed to help students and job seekers systematically track their placement preparation journey. It features an "Elite" design system with glassmorphism effects, smooth animations, and a professional slate color palette. The application supports detailed tracking of various preparation rounds (Aptitude, Technical, Coding, Interviews) and visualizes consistency using a Git-style heatmap.
-
-### 2. Key Features
-- **Elite UI/UX**: Modern, clean interface using Tailwind CSS with glassmorphism, floating animations, and a premium typography stack (Playfair Display & Plus Jakarta Sans).
-- **Multi-User Support**: Secure authentication system allows multiple users to maintain private, isolated progress logs.
-- **Visual Analytics**: 
-  - Git-style contribution heatmap to track daily consistency.
-  - Progress rings and percentage indicators.
-  - Streak tracking (Current & Longest).
-- **Comprehensive Tracking**:
-  - **Round 1 (Aptitude)**: Topic-wise tracking (Quants, Logical, Verbal).
-  - **Round 2 (Technical)**: Core subject mastery (OS, DBMS, CN, OOPs).
-  - **Round 3 (Coding)**: DSA problem tracking (Easy, Medium, Hard).
-  - **Round 4 (Interview)**: Mock interview logs and soft skills practice.
-- **Responsive Design**: Fully responsive layout with mobile-optimized bottom sheets and adaptive grids.
-- **Gamification**: Confetti celebrations upon completing daily goals and interactive motivation cards.
-
-### 3. Technology Stack
-**Frontend:**
-- React.js (Vite)
-- Tailwind CSS (Styling)
-- React Router DOM (Routing)
-- React Calendar Heatmap (Visualizations)
-- Canvas Confetti (Animations)
-- Lucide React (Icons)
-- Date-fns (Date manipulation)
-
-**Backend:**
-- Node.js & Express.js
-- MongoDB & Mongoose (Database)
-- JSON Web Token (JWT) (Authentication)
-- Bcryptjs (Password Hashing)
-- Cors & Dotenv
-
-### 4. Project Structure
-```
-/Track Placement Preparation
-├── /public              # Static assets
-├── /server              # Backend API
-│   ├── /middleware      # Auth middleware
-│   ├── /models          # Mongoose models (User, DayLog, Topic)
-│   ├── /routes          # API routes
-│   ├── index.js         # Server entry point
-│   └── .env             # Backend config
-├── /src                 # Frontend Source
-│   ├── /assets          # Images/Icons
-│   ├── /components      # Reusable UI components (Dashboard, RoundDetails, etc.)
-│   ├── /context         # React Context (AuthContext)
-│   ├── /pages           # Page views (Home, Login, Signup)
-│   ├── App.jsx          # Main App component with Routing
-│   └── main.jsx         # React entry point
-├── index.html           # HTML template
-├── tailwind.config.js   # Tailwind configuration
-└── package.json         # Dependencies
-```
-
-### 5. Local Setup Instructions
-
-**Prerequisites:**
-- Node.js (v14+)
-- MongoDB (Local or Atlas)
-
-**Step 1: Backend Setup**
-1. Navigate to the server directory:
-   ```bash
-   cd server
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the `server` directory:
-   ```env
-   PORT=5000
-   MONGO_URI=mongodb://localhost:27017/placement-tracker
-   JWT_SECRET=your_super_secret_key_change_this
-   ```
-4. Start the server:
-   ```bash
-   npm run dev
-   ```
-
-**Step 2: Frontend Setup**
-1. Navigate to the root directory (if not already there):
-   ```bash
-   cd ..
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-   (Vite will typically run on http://localhost:5173 or 5174)
+## 🌟 Vision
+The Placement Preparation Tracker is a scalable, analytics-driven career readiness ecosystem designed for students, mentors, and placement cells. It combines structured learning, real-time performance analytics, competitive ranking, and intelligent insights to simulate a professional coding + interview preparation environment similar to LeetCode and GitHub analytics platforms.
 
 ---
 
-### 6. Deployment Guide (Public Use)
-
-To deploy this application for public use, we will use a **MERN Stack** deployment strategy:
-- **Database**: MongoDB Atlas (Cloud Database)
-- **Backend**: Render, Railway, or Heroku
-- **Frontend**: Vercel or Netlify
-
-#### Phase 1: Database Deployment (MongoDB Atlas)
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free account.
-2. Create a new Cluster (Shared/Free tier).
-3. In "Database Access", create a database user (username/password).
-4. In "Network Access", allow access from anywhere (`0.0.0.0/0`).
-5. Click "Connect" > "Connect your application" and copy the Connection String.
-   - Replace `<password>` with your actual database user password.
-
-#### Phase 2: Backend Deployment (Render)
-1. Push your code to a GitHub repository.
-2. Sign up on [Render](https://render.com/).
-3. Click "New" > "Web Service".
-4. Connect your GitHub repository.
-5. Settings:
-   - **Root Directory**: `server`
-   - **Build Command**: `npm install`
-   - **Start Command**: `node index.js`
-6. **Environment Variables** (Advanced):
-   - Add `MONGO_URI`: (Paste your Atlas connection string)
-   - Add `JWT_SECRET`: (Set a strong secret key)
-   - Add `PORT`: `5000` (or leave default, Render manages this)
-7. Deploy. Once finished, copy the **Backend URL** (e.g., `https://my-api.onrender.com`).
-
-#### Phase 3: Frontend Deployment (Vercel)
-1. **Update API Base URL**:
-   - In your frontend code (`src/context/AuthContext.jsx`, `src/components/Dashboard.jsx`, etc.), you are currently using `http://localhost:5000`.
-   - **Best Practice**: Create a `.env` file in the root directory:
-     ```env
-     VITE_API_URL=https://my-api.onrender.com/api
-     ```
-   - Replace hardcoded URLs in your code with `import.meta.env.VITE_API_URL`.
-   
-2. **Deploy to Vercel**:
-   - Go to [Vercel](https://vercel.com/) and sign up.
-   - "Add New" > "Project".
-   - Import your GitHub repository.
-   - Settings:
-     - **Framework Preset**: Vite
-     - **Root Directory**: `./` (default)
-     - **Build Command**: `npm run build`
-     - **Output Directory**: `dist`
-   - **Environment Variables**:
-     - Add `VITE_API_URL`: `https://my-api.onrender.com/api` (The URL from Phase 2)
-   - Click **Deploy**.
-
-#### Phase 4: Final Configuration
-1. Go back to your Backend (Render) Dashboard.
-2. If you set up CORS in `server/index.js`, ensure it allows your new Vercel Frontend URL.
-   - Update `server/index.js`:
-     ```javascript
-     app.use(cors({
-       origin: ["https://your-frontend-app.vercel.app", "http://localhost:5173"],
-       credentials: true
-     }));
-     ```
-   - Redeploy Backend.
-
-### 7. API Endpoints
-
-**Auth Routes**
-- `POST /api/auth/signup`: Register a new user.
-- `POST /api/auth/login`: Authenticate user and get token.
-
-**Data Routes** (Protected - requires Bearer Token)
-- `GET /api/daylog`: Fetch logs for a specific date range.
-- `POST /api/daylog`: Create or update a daily log.
-- `GET /api/topics`: Fetch available topics for rounds.
+## 1️⃣ User & Account Management
+* **Role-based access control (RBAC)**: Student / Mentor / Admin roles.
+* **Profile Strength Score**: Based on skill coverage and activity.
+* **Privacy Settings**: Public/private progress toggles.
+* **Profile Modes**: Fresher / Intern / Experienced.
+* **Activity Logs**: Detailed login and action history.
+* **Compliance**: Data export and deletion support.
 
 ---
-*Documentation generated on 2026-02-03*
+
+## 2️⃣ Learning & Practice System
+### Topic Learning Hub
+* **Concept Notes**: Structured notes for all CS topics.
+* **Interview Insights**: Traps, edge cases, and variations.
+* **Quick Revision**: Cheat sheets and bookmarking system.
+
+### Practice Modes
+* **Timed Coding**: Simulated pressure environments.
+* **Pattern-Based**: Focus on specific DSA patterns (DP, Slidng Window, etc.).
+* **Adaptive Practice**: Weak-topic detection and focused drills.
+* **Company Tracks**: Specific preparation modules for target firms.
+
+---
+
+## 3️⃣ Question & Content Engine
+* **Difficulty Levels**: Easy / Medium / Hard balanced sets.
+* **Metadata**: Company tags, trending status, and complexity analysis.
+* **Solutions**: Editorials with multiple approaches (Optimal/Sub-optimal).
+* **Tracking**: Reattempt history and improvement comparison.
+
+---
+
+## 4️⃣ Real Data Analytics & Intelligence
+### Deep Analytics Dashboard
+* **Contribution Heatmap**: Git-style daily activity tracking.
+* **Performance Graphs**: Accuracy vs. Difficulty and Time efficiency trends.
+* **Topic Mastery**: Visual percentage of completion across categories.
+* **Decay Detection**: Alerts when topics need revision based on time elapsed.
+
+### Predictive Insights
+* **Readiness Score**: Overall placement readiness percentage.
+* **Rank Forecast**: Predicting rank movement based on current trajectory.
+* **Company Probability**: Estimating chances for different company tiers.
+
+---
+
+## 5️⃣ Real Data Ranking System (PRS)
+### Placement Readiness Score (PRS) Formula
+`PRS = (Accuracy × 30%) + (Difficulty Score × 25%) + (Consistency × 20%) + (Time Efficiency × 15%) + (Core CS Coverage × 10%)`
+
+### Ranking Tiers
+* **Global / College / Batch Ranks**
+* **Skill-Wise Ranks** (DSA, DBMS, OS, etc.)
+* **Company-Specific Leaderboards**
+* **Percentile Metrics**: Compare against the entire user base.
+
+---
+
+## 6️⃣ Company & Placement Module
+* **Hiring Patterns**: Database of company-specific interview flows.
+* **Application Tracker**: Pipeline (Applied -> In Progress -> Offer).
+* **Alumni Network**: Interview experiences and tips.
+* **Mock Tests**: Simulation of actual company assessment patterns.
+
+---
+
+## 7️⃣ Interview Preparation System
+* **Mock Scheduler**: Plan peer or AI-driven mock interviews.
+* **Evaluation Framework**: STAR format behavioral rating.
+* **Communication Metrics**: Clarity, confidence, and feedback history.
+
+---
+
+## 8️⃣ Project & GitHub Analysis
+* **Git Consistency**: Analyze commit frequency and quality.
+* **Portfolio Score**: README quality, architecture, and live demo readiness.
+* **Project Rehearsal**: Checklists for explaining project decisions.
+
+---
+
+## 9️⃣ Resume Intelligence
+* **ATS Scoring**: Automated resume parsing and score generation.
+* **Skill Gap Mapping**: Identifying missing keywords for target roles.
+* **Version Tracking**: Manage multiple resumes for different roles.
+
+---
+
+## 🔟 Smart Planning & Productivity
+* **Adaptive Goals**: Daily tasks that adjust based on progress.
+* **Revision Mode**: Rapid "Exam Tomorrow" mode for last-minute prep.
+* **Overload Detection**: Alerts to prevent burnout.
+
+---
+
+## 1️⃣1️⃣ Gamification Layer
+* **Badges & Milestones**: "Graph Master", "Consistency King", etc.
+* **XP System**: Level up by solving problems and maintaining streaks.
+* **Leaderboard Trophies**: Rewards for top performers.
+
+---
+
+## 1️⃣2️⃣ Community & Competitive Features
+* **Study Groups**: Peer learning and private rooms.
+* **Forums**: Topic-based discussions and doubt clearing.
+* **Peer Reviews**: Review code and project explanations.
+
+---
+
+## 1️⃣3️⃣ Admin & Placement Cell Dashboard
+* **Batch Overview**: Aggregate performance of entire cohorts.
+* **Segment Analysis**: Identifying students in High/Medium/Low readiness.
+* **Management Tools**: Tools for managing placement drives and reporting.
+
+---
+
+## 1️⃣4️⃣ Security & Scalability
+* **Auth**: JWT + Refresh tokens, Role-based authorization.
+* **Rate Limiting**: Abuse prevention and audit logs.
+* **Architecture**: Modular backend, horizontally scalable, cloud-ready.
+
+---
+
+## 1️⃣5️⃣ Accessibility & UX
+* **Theming**: Dark / Light / Focus modes.
+* **Responsive**: Fully optimized for mobile and desktop.
+* **Performance**: Low-bandwidth mode and offline logging sync.
+
+---
+
+## 1️⃣6️⃣ Advanced Future Enhancements
+* **AI Practice Sets**: Dynamically generated problems.
+* **Emotion Analysis**: Sentiment analysis during mock interviews.
+* **ML Predictions**: Using historical data to predict placement success.
+
+---
+
+## 🛠️ Technology Stack
+**Frontend:** React.js (Vite), Tailwind CSS, Framer Motion, Recharts.
+**Backend:** Node.js, Express.js, MongoDB (Mongoose), JWT.
+**Design:** Glassmorphism, Elite Dark Theme.

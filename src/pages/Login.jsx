@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import logo from '../assets/logo.svg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +14,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login(email, password);
       navigate('/');
@@ -20,53 +24,62 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen pt-14 flex items-center justify-center bg-[#F8FAFC] relative overflow-hidden">
-       {/* Background */}
-       <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100/40 via-slate-50 to-slate-50"></div>
-       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-200/20 rounded-full blur-[100px] animate-pulse"></div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+      {/* Decorative background elements */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/10 rounded-full blur-[120px]"></div>
+      </div>
 
-       <div className="bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/50 w-full max-w-md animate-scale-in">
-         <div className="text-center mb-8">
-           <h1 className="text-3xl font-serif font-bold text-slate-900 mb-2">Welcome Back</h1>
-           <p className="text-slate-500 text-sm">Sign in to continue your placement journey.</p>
-         </div>
+      <Card className="w-full max-w-md p-10 border-slate-800 shadow-2xl">
+        <div className="text-center mb-8">
+          <img src={logo} alt="Logo" className="w-16 h-16 mx-auto mb-4 object-contain" />
+          <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-slate-400 text-sm">Sign in to your professional tracker.</p>
+        </div>
 
-         {error && <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm text-center">{error}</div>}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg mb-6 text-sm text-center">
+            {error}
+          </div>
+        )}
 
-         <form onSubmit={handleSubmit} className="space-y-6">
-           <div>
-             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Email</label>
-             <input 
-               type="email" 
-               required
-               className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-               value={email}
-               onChange={(e) => setEmail(e.target.value)}
-             />
-           </div>
-           <div>
-             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Password</label>
-             <input 
-               type="password" 
-               required
-               className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-               value={password}
-               onChange={(e) => setPassword(e.target.value)}
-             />
-           </div>
-           
-           <button 
-             type="submit" 
-             className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
-           >
-             Sign In
-           </button>
-         </form>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Email Address</label>
+            <input 
+              type="email" 
+              required
+              placeholder="name@company.com"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-600"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Password</label>
+            <input 
+              type="password" 
+              required
+              placeholder="••••••••"
+              className="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-600"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          
+          <Button 
+            type="submit" 
+            className="w-full py-4 text-lg"
+          >
+            Sign In
+          </Button>
+        </form>
 
-         <div className="mt-6 text-center text-sm text-slate-500">
-           New here? <Link to="/signup" className="text-indigo-600 font-bold hover:underline">Create an account</Link>
-         </div>
-       </div>
+        <div className="mt-8 text-center text-sm text-slate-500">
+          Don't have an account? <Link to="/signup" className="text-primary font-bold hover:text-primary-hover transition-colors">Join the Elite</Link>
+        </div>
+      </Card>
     </div>
   );
 }

@@ -1,64 +1,90 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Home from './pages/Home';
+import Layout from './components/layout/Layout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
-const Navbar = () => {
-  const { user, loading, logout } = useAuth();
-  return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="h-5 w-5 rounded-lg bg-indigo-600"></span>
-          <span className="font-serif text-lg text-slate-900">Placement Tracker</span>
-        </div>
-        {!loading && (
-          <div className="flex items-center gap-3">
-            {user ? (
-              <>
-                <span className="text-sm text-slate-600">Hi, {user.username}</span>
-                <button
-                  onClick={logout}
-                  className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-sm hover:bg-slate-800 transition"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <span className="text-sm text-slate-600">Welcome</span>
-            )}
-          </div>
-        )}
+// Feature Components
+import Dashboard from './features/dashboard/Dashboard';
+import TopicList from './features/topics/TopicList';
+import ProblemTracker from './features/problems/ProblemTracker';
+import ProjectPortfolio from './features/projects/ProjectPortfolio';
+import CompanyTracker from './features/companies/CompanyTracker';
+import Leaderboard from './features/ranking/Leaderboard';
+import AdminDashboard from './features/admin/AdminDashboard';
+import Profile from './features/auth/Profile';
+import ResumeAnalyzer from './features/intelligence/ResumeAnalyzer';
+import MockInterview from './features/intelligence/MockInterview';
+import ResourceLibrary from './features/resources/ResourceLibrary';
+import Mentorship from './features/mentorship/Mentorship';
+import Forum from './features/forum/Forum';
+
+const ProtectedRoute = () => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    </div>
-  );
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return <Layout />;
 };
 
-const ProtectedRoute = ({ children }) => {
+const AdminRoute = () => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
-  return children;
+  
+  if (loading) return null;
+  
+  if (!user || (user.role !== 'admin' && user.role !== 'mentor')) {
+    return <Navigate to="/" />;
+  }
+  
+  return <Outlet />;
 };
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <Navbar />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route index element={<Dashboard />} />
+              <Route path="topics" element={<TopicList />} />
+              <Route path="problems" element={<ProblemTracker />} />
+              <Route path="projects" element={<ProjectPortfolio />} />
+              <Route path="companies" element={<CompanyTracker />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="resume" element={<ResumeAnalyzer />} />
+              <Route path="interviews" element={<MockInterview />} />
+              <Route path="resources" element={<ResourceLibrary />} />
+              <Route path="mentorship" element={<Mentorship />} />
+              <Route path="forum" element={<Forum />} />
+              
+              {/* Admin/Mentor Routes */}
+              <Route element={<AdminRoute />}>
+                <Route path="admin" element={<AdminDashboard />} />
+              </Route>
+            </Route>
+
+            {/* 404 Route */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </ErrorBoundary>
       </AuthProvider>
     </Router>
   );
