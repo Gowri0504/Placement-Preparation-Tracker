@@ -146,7 +146,7 @@ const Dashboard = () => {
         {/* Radar Chart */}
         <Card className="lg:col-span-1 h-[400px] flex flex-col">
           <h3 className="text-xl font-bold text-white mb-6">Skill Analysis</h3>
-          <div className="flex-1 w-full min-h-0">
+          <div className="flex-1 w-full min-h-[300px] min-w-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={mockData.skillsData}>
                 <PolarGrid stroke="#334155" />
@@ -169,7 +169,7 @@ const Dashboard = () => {
         {/* Main Chart */}
         <Card className="lg:col-span-3 h-[400px] flex flex-col">
           <h3 className="text-xl font-bold text-white mb-6">Problem Solving Distribution</h3>
-          <div className="flex-1 w-full min-h-0">
+          <div className="flex-1 w-full min-h-[300px] min-w-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -179,7 +179,7 @@ const Dashboard = () => {
                   contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
                   itemStyle={{ color: '#f8fafc' }}
                 />
-                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="#3b82f6" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
