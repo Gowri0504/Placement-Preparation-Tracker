@@ -10,6 +10,7 @@ import Button from '../../components/ui/Button';
 import DailyProgressTracker from './DailyProgressTracker';
 import QuoteCard from '../../components/dashboard/QuoteCard';
 import InsightsCard from '../../components/dashboard/InsightsCard';
+import { useAuth } from '../../context/AuthContext';
 
 const StatCard = ({ title, value, icon, trend, color }) => (
   <Card className="relative overflow-hidden">
@@ -30,12 +31,17 @@ const StatCard = ({ title, value, icon, trend, color }) => (
 );
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [prsData, setPrsData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
         const [statsRes, prsRes] = await Promise.all([
           api.get('/analytics'),
@@ -50,7 +56,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   // Mock data for UI demo if API returns empty/error or while loading
   const mockData = {

@@ -4,6 +4,7 @@ import { FiCheckCircle, FiCircle, FiTrendingUp, FiCalendar, FiEdit3, FiSave } fr
 import api from '../../api/axios';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import { useAuth } from '../../context/AuthContext';
 
 const ROUNDS = [
   { id: 'Aptitude', label: 'Aptitude & Verbal' },
@@ -13,6 +14,7 @@ const ROUNDS = [
 ];
 
 const DailyProgressTracker = () => {
+  const { user } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('last7'); // last7, last30, month
@@ -20,9 +22,13 @@ const DailyProgressTracker = () => {
 
   useEffect(() => {
     fetchLogs();
-  }, []);
+  }, [user]);
 
   const fetchLogs = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     try {
       const res = await api.get('/daylogs/all');
       setLogs(res.data);
