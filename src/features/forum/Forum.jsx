@@ -4,8 +4,10 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { MessageSquare, ThumbsUp, MessageCircle, Share2, Plus, Search, Filter, FileText, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
 
 const Forum = () => {
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
@@ -17,9 +19,13 @@ const Forum = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, [filter]);
+  }, [filter, user]);
 
   const fetchPosts = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const url = filter === 'All' ? '/forum/posts' : `/forum/posts?category=${filter}`;
@@ -33,6 +39,7 @@ const Forum = () => {
   };
 
   const handleUpvote = async (postId) => {
+    if (!user) return;
     try {
       await api.post(`/forum/posts/${postId}/upvote`);
       fetchPosts();
@@ -42,6 +49,7 @@ const Forum = () => {
   };
 
   const handleCreatePost = async () => {
+    if (!user) return;
     try {
       const formData = new FormData();
       formData.append('title', newPost.title);
@@ -52,11 +60,7 @@ const Forum = () => {
         formData.append('files', file);
       });
 
-      await api.post('/forum/posts', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      await api.post('/forum/posts', formData);
       setShowCreateModal(false);
       setNewPost({ title: '', content: '', category: 'General' });
       setSelectedFiles([]);
