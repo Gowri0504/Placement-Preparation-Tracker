@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { MessageSquare, ThumbsUp, MessageCircle, Share2, Plus, Search, Filter } from 'lucide-react';
+import { MessageSquare, ThumbsUp, MessageCircle, Share2, Plus, Search, Filter, FileText, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Forum = () => {
@@ -11,6 +11,7 @@ const Forum = () => {
   const [filter, setFilter] = useState('All');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'General' });
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   const categories = ['All', 'General', 'DSA', 'Interview Experience', 'Placement News', 'Referrals'];
 
@@ -42,9 +43,23 @@ const Forum = () => {
 
   const handleCreatePost = async () => {
     try {
-      await api.post('/forum/posts', newPost);
+      const formData = new FormData();
+      formData.append('title', newPost.title);
+      formData.append('content', newPost.content);
+      formData.append('category', newPost.category);
+      
+      selectedFiles.forEach(file => {
+        formData.append('files', file);
+      });
+
+      await api.post('/forum/posts', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       setShowCreateModal(false);
       setNewPost({ title: '', content: '', category: 'General' });
+      setSelectedFiles([]);
       fetchPosts();
     } catch (err) {
       console.error(err);
@@ -105,9 +120,34 @@ const Forum = () => {
                   </span>
                 </div>
                 
-                <p className="text-slate-400 text-sm mb-6 line-clamp-3 leading-relaxed">
+                <p className="text-slate-400 text-sm mb-4 line-clamp-3 leading-relaxed">
                   {post.content}
                 </p>
+
+                {/* Display uploaded files */}
+                {post.files && post.files.length > 0 && (
+                  <div className="mb-6 space-y-2">
+                  {post.files.map((file, idx) => {
+                    let apiBaseURL = import.meta.env.VITE_API_URL || window.location.origin;
+                    // Remove trailing slash if present
+                    if (apiBaseURL.endsWith('/')) {
+                      apiBaseURL = apiBaseURL.slice(0, -1);
+                    }
+                    // Remove /api suffix if present
+                    if (apiBaseURL.endsWith('/api')) {
+                      apiBaseURL = apiBaseURL.slice(0, -4);
+                    }
+                    const fileURL = `${apiBaseURL}/uploads/${file.filename}`;
+                    return (
+                      <a key={idx} href={fileURL} target="_blank" rel="noreferrer"
+                        className="flex items-center gap-2 p-2 bg-slate-800 rounded-lg border border-slate-700 hover:border-primary/50 transition-colors text-slate-300 text-sm">
+                        <FileText size={18} className="text-primary" />
+                        <span className="truncate">{file.originalName}</span>
+                      </a>
+                    );
+                  })}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-6 border-t border-slate-800 pt-4">
                   <button 
@@ -193,10 +233,48 @@ const Forum = () => {
                       onChange={e => setNewPost({...newPost, content: e.target.value})}
                     />
                   </div>
+                  <div>
+                    <label className="text-sm text-slate-400 mb-1 block">Attach Files (Optional)</label>
+                    <input 
+                      type="file"
+                      multiple
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-primary outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 cursor-pointer"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          setSelectedFiles(Array.from(e.target.files));
+                        }
+                      }}
+                    />
+                  </div>
+                  {/* Show selected files */}
+                  {selectedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      {selectedFiles.map((file, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-slate-800 rounded-lg border border-slate-700">
+                          <div className="flex items-center gap-2 text-slate-300 text-sm">
+                            <FileText size={16} />
+                            <span>{file.name}</span>
+                          </div>
+                          <button 
+                            type="button"
+                            className="text-slate-400 hover:text-red-400"
+                            onClick={() => {
+                              setSelectedFiles(prev => prev.filter((_, i) => i !== idx));
+                            }}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end gap-4 pt-4">
-                  <Button variant="ghost" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+                  <Button variant="ghost" onClick={() => {
+                    setShowCreateModal(false);
+                    setSelectedFiles([]);
+                  }}>Cancel</Button>
                   <Button onClick={handleCreatePost} disabled={!newPost.title || !newPost.content}>Publish Post</Button>
                 </div>
               </Card>

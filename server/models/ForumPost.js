@@ -12,7 +12,14 @@ const ForumPostSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
   }],
   isAnonymous: { type: Boolean, default: false },
-  tags: [String]
+  tags: [String],
+  files: [{
+    filename: { type: String, required: true },
+    originalName: { type: String, required: true },
+    path: { type: String, required: true },
+    size: { type: Number, required: true },
+    mimetype: { type: String, required: true }
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('ForumPost', ForumPostSchema);

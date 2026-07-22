@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const path = require('path');
 
 // Models
 const User = require('../models/User');
@@ -19,6 +21,19 @@ const MentorSession = require('../models/MentorSession');
 const ForumPost = require('../models/ForumPost');
 
 const { protect, authorize } = require('../middleware/authMiddleware');
+
+// Multer configuration for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../uploads'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
 
 // --- HELPER: Generate JWT ---
 const generateToken = (id) => {
@@ -590,9 +605,20 @@ router.get('/forum/posts', protect, async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-router.post('/forum/posts', protect, async (req, res) => {
+router.post('/forum/posts', protect, upload.array('files', 10), async (req, res) => {
   try {
-    const post = await ForumPost.create({ ...req.body, authorId: req.user._id });
+    const files = req.files.map(file => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      path: file.path,
+      size: file.size,
+      mimetype: file.mimetype
+    }));
+    const post = await ForumPost.create({ 
+      ...req.body, 
+      authorId: req.user._id,
+      files 
+    });
     res.status(201).json(post);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
