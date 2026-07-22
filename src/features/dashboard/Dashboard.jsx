@@ -35,8 +35,10 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [prsData, setPrsData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const fetchData = async () => {
       if (!user) {
         setLoading(false);
@@ -146,43 +148,47 @@ const Dashboard = () => {
         {/* Radar Chart */}
         <Card className="lg:col-span-1 h-[400px] flex flex-col">
           <h3 className="text-xl font-bold text-white mb-6">Skill Analysis</h3>
-          <div className="flex-1 w-full min-h-[300px] min-w-[200px]">
-                    <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={300}>
-                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={mockData.skillsData}>
-                        <PolarGrid stroke="#334155" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} />
-                        <Radar
-                          name="Skills"
-                          dataKey="A"
-                          stroke="#8b5cf6"
-                          strokeWidth={2}
-                          fill="#8b5cf6"
-                          fillOpacity={0.3}
-                        />
-                        <Tooltip />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
+          {mounted && (
+            <div className="flex-1 w-full min-h-[300px] min-w-[200px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={300}>
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={mockData.skillsData}>
+                  <PolarGrid stroke="#334155" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} />
+                  <Radar
+                    name="Skills"
+                    dataKey="A"
+                    stroke="#8b5cf6"
+                    strokeWidth={2}
+                    fill="#8b5cf6"
+                    fillOpacity={0.3}
+                  />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </Card>
 
         {/* Main Chart */}
         <Card className="lg:col-span-3 h-[400px] flex flex-col">
           <h3 className="text-xl font-bold text-white mb-6">Problem Solving Distribution</h3>
-          <div className="flex-1 w-full min-h-[300px] min-w-[200px]">
-                    <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={300}>
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                        <XAxis dataKey="name" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
-                          itemStyle={{ color: '#f8fafc' }}
-                        />
-                        <Bar dataKey="value" fill="#3b82f6" radius={[4,4,0,0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+          {mounted && (
+            <div className="flex-1 w-full min-h-[300px] min-w-[200px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={300}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
+                    itemStyle={{ color: '#f8fafc' }}
+                  />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </Card>
       </div>
 
