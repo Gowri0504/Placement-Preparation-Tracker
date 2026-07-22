@@ -7,11 +7,17 @@ const fs = require('fs');
 
 dotenv.config();
 
+// Log JWT_SECRET (masked for security)
+const jwtSecret = process.env.JWT_SECRET;
+const maskedSecret = jwtSecret ? `${jwtSecret.slice(0, 4)}...${jwtSecret.slice(-4)}` : 'NOT DEFINED';
+console.log('Loaded JWT_SECRET (masked):', maskedSecret);
+
 const app = express();
 app.use(cors({
   origin: [
      'http://localhost:5173',
      'http://localhost:5174',
+     'http://localhost:5175',
      'https://placement-preparation-tracker-bay.vercel.app',
      process.env.FRONTEND_URL
    ].filter(Boolean),

@@ -21,8 +21,13 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    console.log('=== axios interceptor: config.url:', config.url);
+    console.log('=== axios interceptor: userInfo.token:', userInfo ? `${userInfo.token?.slice(0, 30)}...` : 'no userInfo');
     if (userInfo && userInfo.token) {
       config.headers.Authorization = `Bearer ${userInfo.token}`;
+      console.log('=== axios interceptor: added Authorization header:', `${config.headers.Authorization.slice(0, 40)}...`);
+    } else {
+      console.log('=== axios interceptor: no token found in userInfo');
     }
     return config;
   },

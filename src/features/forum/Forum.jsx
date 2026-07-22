@@ -51,6 +51,9 @@ const Forum = () => {
   const handleCreatePost = async () => {
     if (!user) return;
     try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      console.log('=== Forum.jsx: userInfo.token:', userInfo ? `${userInfo.token?.slice(0, 30)}...` : 'no userInfo');
+      
       const formData = new FormData();
       formData.append('title', newPost.title);
       formData.append('content', newPost.content);
