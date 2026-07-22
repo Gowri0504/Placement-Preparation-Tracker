@@ -594,7 +594,7 @@ router.post('/mentorship/sessions', protect, async (req, res) => {
 // COMMUNITY FORUM
 // ==========================================
 
-router.get('/forum/posts', protect, async (req, res) => {
+router.get('/forum/posts', async (req, res) => {
   try {
     const { category } = req.query;
     const filter = category ? { category } : {};
