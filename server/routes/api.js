@@ -13,7 +13,6 @@ const TopicProgress = require('../models/TopicProgress');
 const DayLog = require('../models/DayLog');
 const Problem = require('../models/Problem');
 const Project = require('../models/Project');
-const Company = require('../models/Company');
 const Resume = require('../models/Resume');
 const MockInterview = require('../models/MockInterview');
 const Resource = require('../models/Resource');
@@ -296,21 +295,6 @@ router.post('/projects', protect, async (req, res) => {
   try {
     const project = await Project.create({ ...req.body, userId: req.user._id });
     res.json(project);
-  } catch (err) { res.status(500).json({ message: err.message }); }
-});
-
-// COMPANIES
-router.get('/companies', protect, async (req, res) => {
-  try {
-    const companies = await Company.find({ userId: req.user._id });
-    res.json(companies);
-  } catch (err) { res.status(500).json({ message: err.message }); }
-});
-
-router.post('/companies', protect, async (req, res) => {
-  try {
-    const company = await Company.create({ ...req.body, userId: req.user._id });
-    res.json(company);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 

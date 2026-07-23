@@ -237,10 +237,10 @@ const Forum = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-2xl"
+              className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
             >
-              <Card className="p-8 space-y-6 border-primary/20">
-                <h2 className="text-2xl font-bold text-white">Create New Post</h2>
+              <Card className="p-6 md:p-8 space-y-6 border-primary/20">
+                <h2 className="text-xl md:text-2xl font-bold text-white">Create New Post</h2>
                 
                 <div className="space-y-4">
                   <div>
@@ -286,16 +286,16 @@ const Forum = () => {
                   </div>
                   {/* Show selected files */}
                   {selectedFiles.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
                       {selectedFiles.map((file, idx) => (
                         <div key={idx} className="flex items-center justify-between p-2 bg-slate-800 rounded-lg border border-slate-700">
-                          <div className="flex items-center gap-2 text-slate-300 text-sm">
+                          <div className="flex items-center gap-2 text-slate-300 text-sm overflow-hidden">
                             <FileText size={16} />
-                            <span>{file.name}</span>
+                            <span className="truncate">{file.name}</span>
                           </div>
                           <button 
                             type="button"
-                            className="text-slate-400 hover:text-red-400"
+                            className="text-slate-400 hover:text-red-400 flex-shrink-0"
                             onClick={() => {
                               setSelectedFiles(prev => prev.filter((_, i) => i !== idx));
                             }}
@@ -308,7 +308,7 @@ const Forum = () => {
                   )}
                 </div>
 
-                <div className="flex justify-end gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
                   <Button variant="ghost" onClick={() => {
                     setShowCreateModal(false);
                     setSelectedFiles([]);

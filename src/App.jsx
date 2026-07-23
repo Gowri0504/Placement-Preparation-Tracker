@@ -10,7 +10,6 @@ import Dashboard from './features/dashboard/Dashboard';
 import TopicList from './features/topics/TopicList';
 import ProblemTracker from './features/problems/ProblemTracker';
 import ProjectPortfolio from './features/projects/ProjectPortfolio';
-import CompanyTracker from './features/companies/CompanyTracker';
 import Leaderboard from './features/ranking/Leaderboard';
 import AdminDashboard from './features/admin/AdminDashboard';
 import Profile from './features/auth/Profile';
@@ -67,7 +66,6 @@ function App() {
               <Route path="topics" element={<TopicList />} />
               <Route path="problems" element={<ProblemTracker />} />
               <Route path="projects" element={<ProjectPortfolio />} />
-              <Route path="companies" element={<CompanyTracker />} />
               <Route path="leaderboard" element={<Leaderboard />} />
               <Route path="profile" element={<Profile />} />
               <Route path="resume" element={<ResumeAnalyzer />} />

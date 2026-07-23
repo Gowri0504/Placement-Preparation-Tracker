@@ -25,7 +25,6 @@ const Layout = () => {
     { name: 'Projects', icon: <FiBriefcase />, path: '/projects' },
     { name: 'Resume AI', icon: <FiFileText />, path: '/resume' },
     { name: 'Mock Interviews', icon: <FiMessageSquare />, path: '/interviews' },
-    { name: 'Companies', icon: <FiTarget />, path: '/companies' },
     { name: 'Profile', icon: <FiUser />, path: '/profile' },
   ];
 
