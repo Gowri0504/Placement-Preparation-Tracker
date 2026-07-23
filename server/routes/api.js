@@ -33,7 +33,13 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB per file
+    files: 20 // Allow up to 20 files
+  }
+});
 
 // --- HELPER: Generate JWT ---
 const generateToken = (id) => {
@@ -596,12 +602,24 @@ router.post('/mentorship/sessions', protect, async (req, res) => {
 
 router.get('/forum/posts', async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, page = 1, limit = 10 } = req.query;
     const filter = category ? { category } : {};
+    const skip = (page - 1) * limit;
+    
     const posts = await ForumPost.find(filter)
       .populate('authorId', 'username profile')
-      .sort({ createdAt: -1 });
-    res.json(posts);
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await ForumPost.countDocuments(filter);
+    
+    res.json({
+      posts,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
@@ -620,6 +638,89 @@ router.post('/forum/posts', protect, upload.array('files', 10), async (req, res)
       files 
     });
     res.status(201).json(post);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Get single forum post by ID
+router.get('/forum/posts/:id', async (req, res) => {
+  try {
+    const post = await ForumPost.findById(req.params.id)
+      .populate('authorId', 'username profile')
+      .populate('comments.authorId', 'username profile');
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    res.json(post);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Add comment to forum post
+router.post('/forum/posts/:id/comments', protect, async (req, res) => {
+  try {
+    const post = await ForumPost.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    
+    const newComment = {
+      authorId: req.user._id,
+      content: req.body.content
+    };
+    
+    post.comments.push(newComment);
+    await post.save();
+    
+    // Populate the new comment's author
+    const populatedPost = await ForumPost.findById(post._id)
+      .populate('comments.authorId', 'username profile');
+    const addedComment = populatedPost.comments[populatedPost.comments.length - 1];
+    
+    res.status(201).json(addedComment);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Edit comment
+router.put('/forum/posts/:id/comments/:commentId', protect, async (req, res) => {
+  try {
+    const post = await ForumPost.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    
+    const comment = post.comments.id(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+    
+    // Check if user is the author of the comment
+    if (comment.authorId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to edit this comment' });
+    }
+    
+    comment.content = req.body.content;
+    comment.updatedAt = Date.now();
+    await post.save();
+    
+    // Populate the updated comment's author
+    const populatedPost = await ForumPost.findById(post._id)
+      .populate('comments.authorId', 'username profile');
+    const updatedComment = populatedPost.comments.id(req.params.commentId);
+    
+    res.json(updatedComment);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Delete comment
+router.delete('/forum/posts/:id/comments/:commentId', protect, async (req, res) => {
+  try {
+    const post = await ForumPost.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    
+    const comment = post.comments.id(req.params.commentId);
+    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+    
+    // Check if user is the author of the comment or an admin
+    if (comment.authorId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized to delete this comment' });
+    }
+    
+    // Remove the comment
+    post.comments.pull(req.params.commentId);
+    await post.save();
+    
+    res.json({ message: 'Comment deleted successfully' });
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 

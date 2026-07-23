@@ -7,9 +7,11 @@ const ForumPostSchema = new mongoose.Schema({
   category: { type: String, enum: ['General', 'DSA', 'Interview Experience', 'Placement News', 'Referrals'], default: 'General' },
   upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [{
-    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    content: String,
-    createdAt: { type: Date, default: Date.now }
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    content: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
   }],
   isAnonymous: { type: Boolean, default: false },
   tags: [String],

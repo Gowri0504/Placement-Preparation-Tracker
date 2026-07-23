@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -8,18 +9,21 @@ import { useAuth } from '../../context/AuthContext';
 
 const Forum = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'General' });
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const categories = ['All', 'General', 'DSA', 'Interview Experience', 'Placement News', 'Referrals'];
 
   useEffect(() => {
     fetchPosts();
-  }, [filter, user]);
+  }, [filter, user, page]);
 
   const fetchPosts = async () => {
     if (!user) {
@@ -28,9 +32,13 @@ const Forum = () => {
     }
     setLoading(true);
     try {
-      const url = filter === 'All' ? '/forum/posts' : `/forum/posts?category=${filter}`;
+      let url = `/forum/posts?page=${page}&limit=10`;
+      if (filter !== 'All') {
+        url += `&category=${filter}`;
+      }
       const { data } = await api.get(url);
-      setPosts(data);
+      setPosts(data.posts);
+      setTotalPages(data.totalPages);
     } catch (err) {
       console.error(err);
     } finally {
@@ -51,9 +59,6 @@ const Forum = () => {
   const handleCreatePost = async () => {
     if (!user) return;
     try {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      console.log('=== Forum.jsx: userInfo.token:', userInfo ? `${userInfo.token?.slice(0, 30)}...` : 'no userInfo');
-      
       const formData = new FormData();
       formData.append('title', newPost.title);
       formData.append('content', newPost.content);
@@ -109,7 +114,10 @@ const Forum = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className="p-6 hover:border-primary/30 transition-all group">
+              <Card 
+                className="p-6 hover:border-primary/30 transition-all group cursor-pointer"
+                onClick={() => navigate(`/forum/${post._id}`)}
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold border border-slate-700">
@@ -158,9 +166,9 @@ const Forum = () => {
 
                 <div className="flex items-center gap-6 border-t border-slate-800 pt-4">
                   <button 
-                    onClick={() => handleUpvote(post._id)}
-                    className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors text-sm"
-                  >
+                onClick={(e) => { e.stopPropagation(); handleUpvote(post._id); }}
+                className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors text-sm"
+              >
                     <ThumbsUp size={16} />
                     {post.upvotes?.length || 0}
                   </button>
@@ -197,6 +205,29 @@ const Forum = () => {
           </Card>
         </div>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <Button
+            variant="ghost"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Previous
+          </Button>
+          <span className="text-slate-400 text-sm">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="ghost"
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      )}
 
       {/* Create Post Modal */}
       <AnimatePresence>

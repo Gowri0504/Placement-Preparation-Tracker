@@ -121,6 +121,33 @@ const Profile = () => {
                   onChange={e => setProfile({...profile, githubProfile: e.target.value})}
                 />
               </div>
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm text-slate-400">LinkedIn Profile</label>
+                <input 
+                  disabled={!editing}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white disabled:opacity-50"
+                  value={profile.linkedinProfile || ''}
+                  onChange={e => setProfile({...profile, linkedinProfile: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm text-slate-400">Portfolio</label>
+                <input 
+                  disabled={!editing}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white disabled:opacity-50"
+                  value={profile.portfolio || ''}
+                  onChange={e => setProfile({...profile, portfolio: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm text-slate-400">LeetCode Username</label>
+                <input 
+                  disabled={!editing}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white disabled:opacity-50"
+                  value={profile.leetcodeUsername || ''}
+                  onChange={e => setProfile({...profile, leetcodeUsername: e.target.value})}
+                />
+              </div>
             </div>
 
             {editing && (

@@ -16,9 +16,10 @@ const UserSchema = new mongoose.Schema({
     githubProfile: { type: String },
     linkedinProfile: { type: String },
     portfolio: { type: String },
+    leetcodeUsername: { type: String },
     targetRole: { type: String, default: 'Software Engineer' },
     languageProficiency: [{
-      language: { type: String, enum: ['C', 'C++', 'Java', 'Python', 'JavaScript'] },
+      language: { type: String, enum: ['C', 'C++', 'Java', 'JavaScript', 'Python'] },
       confidence: { type: Number, default: 0 }, // 0-100
       problemSolvingComfort: { type: Number, default: 0 }, // 0-100
       interviewReadiness: { type: Number, default: 0 } // 0-100

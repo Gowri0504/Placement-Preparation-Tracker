@@ -19,6 +19,7 @@ import MockInterview from './features/intelligence/MockInterview';
 import ResourceLibrary from './features/resources/ResourceLibrary';
 import Mentorship from './features/mentorship/Mentorship';
 import Forum from './features/forum/Forum';
+import ForumPostDetail from './features/forum/ForumPostDetail';
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -74,6 +75,7 @@ function App() {
               <Route path="resources" element={<ResourceLibrary />} />
               <Route path="mentorship" element={<Mentorship />} />
               <Route path="forum" element={<Forum />} />
+              <Route path="forum/:id" element={<ForumPostDetail />} />
               
               {/* Admin/Mentor Routes */}
               <Route element={<AdminRoute />}>
