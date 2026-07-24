@@ -6,7 +6,7 @@ const getJwtSecret = () => {
     throw new Error('JWT_SECRET is not configured');
   }
 
-  return process.env.JWT_SECRET;
+  return process.env.JWT_SECRET.trim();
 };
 
 const protect = async (req, res, next) => {

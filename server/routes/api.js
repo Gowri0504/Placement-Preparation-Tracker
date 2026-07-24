@@ -35,7 +35,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB per file
+    fileSize: 50 * 1024 * 1024, // 50MB per file
     files: 20 // Allow up to 20 files
   }
 });
@@ -46,7 +46,7 @@ const getJwtSecret = () => {
     throw new Error('JWT_SECRET is not configured');
   }
 
-  return process.env.JWT_SECRET;
+  return process.env.JWT_SECRET.trim();
 };
 
 const generateToken = (id) => {
@@ -615,22 +615,27 @@ router.get('/forum/posts', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-router.post('/forum/posts', protect, upload.array('files', 10), async (req, res) => {
-  try {
-    const files = req.files.map(file => ({
-      filename: file.filename,
-      originalName: file.originalname,
-      path: file.path,
-      size: file.size,
-      mimetype: file.mimetype
-    }));
-    const post = await ForumPost.create({ 
-      ...req.body, 
-      authorId: req.user._id,
-      files 
-    });
-    res.status(201).json(post);
-  } catch (err) { res.status(500).json({ message: err.message }); }
+router.post('/forum/posts', protect, (req, res) => {
+  upload.array('files', 20)(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    try {
+      const files = (req.files || []).map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        size: file.size,
+        mimetype: file.mimetype
+      }));
+      const post = await ForumPost.create({ 
+        ...req.body, 
+        authorId: req.user._id,
+        files 
+      });
+      res.status(201).json(post);
+    } catch (err) { res.status(500).json({ message: err.message }); }
+  });
 });
 
 // Get single forum post by ID

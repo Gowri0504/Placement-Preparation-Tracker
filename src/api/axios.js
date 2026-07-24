@@ -31,4 +31,18 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.request.use((config) => {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+  console.log("UserInfo:", userInfo);
+
+  if (userInfo?.token) {
+    console.log("Sending Token:", userInfo.token);
+
+    config.headers.Authorization = `Bearer ${userInfo.token}`;
+  }
+
+  return config;
+});
+
 export default api;
